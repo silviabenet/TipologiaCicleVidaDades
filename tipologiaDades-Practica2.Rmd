@@ -1,0 +1,98 @@
+---
+title: "TipologiaDades-Practica2"
+author: "Silvia Benet, Marc Garrido"
+date: "15/5/2020"
+output:
+  html_document:
+    highlight: default
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_depth: 3
+  word_document: default
+  pdf_document:
+    highlight: zenburn
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+******
+# Introducció
+******
+## Descripció del Dataset
+
+```{r }
+
+library(ggplot2)
+library(dplyr)
+
+wineQualityRed <- read.csv('winequality-red.csv', stringsAsFactors = FALSE, header = TRUE, sep=";")
+
+names(wineQualityRed) <- c("fixedacidity",
+   "volatileacidity",
+   "citricacid",
+   "residualsugar",
+   "chlorides",
+   "freesulfurdioxide",
+   "totalsulfurdioxide",
+   "density",
+   "pH",
+   "sulphates",
+   "alcohol",
+   "quality")
+
+```
+## Neteja de les dades
+
+Comprovem l'estructura del joc de dades
+
+```{r }
+str(wineQualityRed)
+```
+
+Mirem un resum per fer un cop d'ull quins valors tenim
+```{r }
+summary(wineQualityRed)
+```
+D'entrada no es veuen valors extranys. Mirarem si hi ha zeros i nulls
+```{r }
+colSums(is.na(wineQualityRed))
+colSums(wineQualityRed=="")
+
+```
+No hi ha valors a 0 ni nulls. Mirem valors N/A
+
+```{r }
+colSums(wineQualityRed=="N/A")
+```
+No hi ha valors N/A. Sembla doncs que en tot el dataset no hi ha valos perduts.
+
+3.2 Identificació de valors extrems (outliers)
+
+```{r }
+
+boxplot(wineQualityRed$fixedacidity,xlab="fixedacidity")
+outliersfixedacidity<-boxplot(wineQualityRed$fixedacidity, plot =FALSE)$out
+outliersfixedacidity
+
+boxplot(wineQualityRed$volatileacidity,xlab="volatileacidity") 
+boxplot(wineQualityRed$citricacid, xlab="citricacid")
+boxplot(wineQualityRed$residualsugar,xlab="residualsugar")
+boxplot(wineQualityRed$chlorides, xlab="chlorides")
+boxplot(wineQualityRed$freesulfurdioxide, xlab ="freesulfurdioxide")
+boxplot(wineQualityRed$totalsulfurdioxide,xlab ="totalsulfurdioxide" )
+boxplot(wineQualityRed$density, xlab ="density")
+#boxplot(wineQualityRed$ph)
+boxplot(wineQualityRed$sulphates, xlab ="sulphates")
+boxplot(wineQualityRed$alcohol,xlab="alcohol")
+boxplot(wineQualityRed$quality, xlab ="quality")
+
+# ARREGLAR PH !! S'ha d'arrodonir a X decimals??????
+
+
+
+```
+
