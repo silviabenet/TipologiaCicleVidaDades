@@ -5,7 +5,7 @@ date: "15/5/2020"
 output:
   html_document:
     highlight: default
-    number_sections: yes
+    number_sections: no
     theme: cosmo
     toc: yes
     toc_depth: 3
@@ -23,6 +23,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # Introducció
 ******
 ## Descripció del Dataset
+
+https://www.kaggle.com/uciml/red-wine-quality-cortez-et-al-2009
 
 ```{r }
 
@@ -57,27 +59,22 @@ Mirem un resum per fer un cop d'ull quins valors tenim
 ```{r }
 summary(wineQualityRed)
 ```
-D'entrada no es veuen valors extranys. Mirarem si hi ha zeros i nulls
+Amb un summary podem veure més o menys com són les dades per fer-nos una primera idea.
+Mirarem si hi ha zeros i nulls
 ```{r }
 colSums(is.na(wineQualityRed))
 colSums(wineQualityRed=="")
 
 ```
-No hi ha valors a 0 ni nulls. Mirem valors N/A
+No hi ha valors a 0 ni nulls. No semba que hi hagi valors perduts (ni N/A ni altres valors). 
+
+## 3.2 Identificació de valors extrems (outliers)
+
+Utilitzant boxplot comprovarem si les variables tenen valors extrems i si aquests valors poden ser considerats vàlids i per tant s'han de tenir en compte o si al contrari són valors invàlids i s'han de tractar o eliminar. 
 
 ```{r }
-colSums(wineQualityRed=="N/A")
-```
-No hi ha valors N/A. Sembla doncs que en tot el dataset no hi ha valos perduts.
-
-3.2 Identificació de valors extrems (outliers)
-
-```{r }
-
+par(mfrow=c(2,2))
 boxplot(wineQualityRed$fixedacidity,xlab="fixedacidity")
-outliersfixedacidity<-boxplot(wineQualityRed$fixedacidity, plot =FALSE)$out
-outliersfixedacidity
-
 boxplot(wineQualityRed$volatileacidity,xlab="volatileacidity") 
 boxplot(wineQualityRed$citricacid, xlab="citricacid")
 boxplot(wineQualityRed$residualsugar,xlab="residualsugar")
@@ -85,14 +82,52 @@ boxplot(wineQualityRed$chlorides, xlab="chlorides")
 boxplot(wineQualityRed$freesulfurdioxide, xlab ="freesulfurdioxide")
 boxplot(wineQualityRed$totalsulfurdioxide,xlab ="totalsulfurdioxide" )
 boxplot(wineQualityRed$density, xlab ="density")
-#boxplot(wineQualityRed$ph)
+boxplot(wineQualityRed$pH, xlab ="pH")
 boxplot(wineQualityRed$sulphates, xlab ="sulphates")
 boxplot(wineQualityRed$alcohol,xlab="alcohol")
 boxplot(wineQualityRed$quality, xlab ="quality")
 
-# ARREGLAR PH !! S'ha d'arrodonir a X decimals??????
+```
 
+Citricacid té només un valor que està allunyat de la resta. Mirem quin és:
+```{r }
 
+boxplot(wineQualityRed$citricacid, plot =FALSE)$out
+
+```
+Amb un summary podrem veure quins són els valors i quin és valor màxim per veure si realment està tan allunyat i és un valor no vàlid.
+
+```{r }
+summary(wineQualityRed$citricacid)
+plot(wineQualityRed$citricacid)
+```
+
+El valor que semblaria outiler és 1, el rang de la variable oscil.la entre 0 i 1, i hi ha valors de 0,8 així que no sembla pas un error. El deixarem tal com està.
+
+Comprovarem totalsulfurdioxide perquè també sembla qeu tingui alguns valors allunyats:
+
+```{r }
+boxplot(wineQualityRed$totalsulfurdioxide, plot =FALSE)$out
+summary(wineQualityRed$totalsulfurdioxide)
+plot(wineQualityRed$totalsulfurdioxide)
+```
+
+Aquests dos valors si que es veuen ben diferenciats de la resta. Mirem quina informació dóna la seva fila per veure si discernim si són valors correctes o incorrectes.
+El valor màxim és 289:
+```{r }
+
+wineQualityRed[wineQualityRed$totalsulfurdioxide==289,]
+wineQualityRed[wineQualityRed$totalsulfurdioxide==278,]
 
 ```
 
+Els valors de totes les variables semblen normals per tant suposarem que els valors d'aquesta variable són correctes. Tal com comenta a:https://archive.ics.uci.edu/ml/datasets/wine+quality els algoritmes d'outliers poden ajudar a detectar els vins excelents o molt pobres i de fet es pot veure que aquests dos valors tenen qualitat = 7 que és alta. Veurem més endavant si aquesta variable té un pes important en la qualitat dels vins.
+
+La resta de variables no sembla que presentin outliers. Hi ha alguns valors fora de la normalitat però no s'en veu cap sol i molt allunyat de tota la resta.
+
+# MirAR normalitat i variança
+# BUsCAR CORRELACIONS
+# Agafem els vins blancs i fem dos grups???????
+# Anàlisis PCA?
+# Regressió lineal
+# Arbre de decisió?? (discretitzar quality) o kmeans?
