@@ -46,7 +46,11 @@ names(wineQualityRed) <- c("fixedacidity",
    "alcohol",
    "quality")
 
+wineQualityWhite <- read.csv('winequality-white.csv', stringsAsFactors = FALSE, header = TRUE, sep=";")
+
+
 ```
+
 ## Neteja de les dades
 
 Comprovem l'estructura del joc de dades
@@ -125,7 +129,55 @@ Els valors de totes les variables semblen normals per tant suposarem que els val
 
 La resta de variables no sembla que presentin outliers. Hi ha alguns valors fora de la normalitat però no s'en veu cap sol i molt allunyat de tota la resta.
 
+# Comprovem la normalitat de les dades
+
+Amb l'histograma podem veure que sembla que segueix una distribució normal. Per assegurar realitzarem una gràfica qq cuantil - cuantil (qqplot)
+
+```{r }
+qqnorm(wineQualityRed$quality,main = paste("Normal Q-Q Plot for "))
+qqline(wineQualityRed$quality,col="red")
+
+```
+Per comprovar-ho realment utilitzarem el test de Anderson-Darling per totes les variables:
+
+```{r }
+
+library(nortest)
+
+hist(wineQualityRed[,1])
+ad.test(wineQualityRed[,1])
+
+alpha <- 0.05
+col.names = colnames(wineQualityRed)
+
+for (i in 1:ncol(wineQualityRed)) {
+
+   if (is.integer(wineQualityRed[,i]) | is.numeric(wineQualityRed[,i])) {
+      p_val = ad.test(wineQualityRed[,i])$p.value
+      if (p_val < alpha) {
+       cat("No Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
+      }
+      else {
+         cat ("Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
+      }
+   }
+}
+
+```
+Segons el test d'Anderson-Darling no hi ha cap variable que segueixi una distribució normal.
+
+?????? QUe FEM???
+ESCALEM LES VARIABles que estàn totes en diferents escales??
+
+# Comprovem la variança
+
+Comparem si la variança és homogènia comparant els vins blancs amb els vins negres
+
+
+
+
 # MirAR normalitat i variança
+
 # BUsCAR CORRELACIONS
 # Agafem els vins blancs i fem dos grups???????
 # Anàlisis PCA?
