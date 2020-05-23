@@ -30,6 +30,7 @@ https://www.kaggle.com/uciml/red-wine-quality-cortez-et-al-2009
 
 library(ggplot2)
 library(dplyr)
+library(corrplot)
 
 wineQualityRed <- read.csv('winequality-red.csv', stringsAsFactors = FALSE, header = TRUE, sep=";")
 
@@ -45,6 +46,7 @@ names(wineQualityRed) <- c("fixedacidity",
    "sulphates",
    "alcohol",
    "quality")
+
 
 head(wineQualityRed)
 
@@ -97,6 +99,14 @@ Deixarem l'últim atribut com a enter, ja que aquest és un número del zero al 
 
 
 # 3. Neteja de les dades.
+=======
+wineQualityWhite <- read.csv('winequality-white.csv', stringsAsFactors = FALSE, header = TRUE, sep=";")
+
+
+```
+
+## Neteja de les dades
+
 
 Comprovem l'estructura del joc de dades
 
@@ -178,6 +188,9 @@ wineQualityRed[wineQualityRed$totalsulfurdioxide==278,]
 Els valors de totes les variables semblen normals per tant suposarem que els valors d'aquesta variable són correctes. Tal com comenta a:https://archive.ics.uci.edu/ml/datasets/wine+quality els algoritmes d'outliers poden ajudar a detectar els vins excelents o molt pobres i de fet es pot veure que aquests dos valors tenen qualitat = 7 que és alta. Veurem més endavant si aquesta variable té un pes important en la qualitat dels vins.
 
 La resta de variables no sembla que presentin outliers. Hi ha alguns valors fora de la normalitat però no s'en veu cap sol i molt allunyat de tota la resta.
+
+
+
 
 # 4. Anàlisi de les dades.
 
@@ -376,7 +389,118 @@ Veiem que tampoc existeix massa relació.
 
 # MirAR normalitat i variança
 # BUsCAR CORRELACIONS
+=======
+# Comprovem la normalitat de les dades
+
+Amb l'histograma podem veure que sembla que segueix una distribució normal. Per assegurar realitzarem una gràfica qq cuantil - cuantil (qqplot)
+
+```{r }
+qqnorm(wineQualityRed$quality,main = paste("Normal Q-Q Plot for "))
+qqline(wineQualityRed$quality,col="red")
+
+```
+Per comprovar-ho realment utilitzarem el test de Anderson-Darling per totes les variables:
+
+```{r }
+
+library(nortest)
+
+hist(wineQualityRed[,1])
+ad.test(wineQualityRed[,1])
+
+alpha <- 0.05
+col.names = colnames(wineQualityRed)
+
+for (i in 1:ncol(wineQualityRed)) {
+
+   if (is.integer(wineQualityRed[,i]) | is.numeric(wineQualityRed[,i])) {
+      p_val = ad.test(wineQualityRed[,i])$p.value
+      if (p_val < alpha) {
+       cat("No Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
+      }
+      else {
+         cat ("Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
+      }
+   }
+}
+
+```
+Segons el test d'Anderson-Darling no hi ha cap variable que segueixi una distribució normal.
+
+?????? QUe FEM???
+
+
+# Comprovem la variança
+
 # Agafem els vins blancs i fem dos grups???????
-# Anàlisis PCA?
+Comparem si la variança és homogènia comparant els vins blancs amb els vins negres
+
+# Busquem les correlacions que hi ha entre variables
+
+```{r }
+
+
+par(mfrow = c(1,1))
+correlacio.wineQualityRed <- cor(wineQualityRed)
+corrplot(correlacio.wineQualityRed, method = 'number')
+
+cat("\n")
+```
+
+Les variables que estàn més correlacioandes entre elles són pH i fixedAxcidity. Les següents més relacionades són:
+
+* fixedAcidity i citricAcid
+* fixedACidity i density
+* freeSulfurDioxide i totalSulfurDioxide
+
+I les variables que estàn més relacionades amb la qualitat són:
+
+* alcohol 
+* volatileacidity
+
+
+
+
+
+# Knn
+
+Per intentar predir la qualitat del vi segons els variables que tenim d'entrada, aplicarem l'algoritme K-Nearest Neighbors (Knn)
+
+Primer escalarem les dades ja que estàn totes en escales diferents:
+
+## Abans d'escalar s'ha de discretitzar la variable de sortida entre qualitat baixa, mitjana i alta i no escalar-la !
+
+```{r }
+wine.Scal <- scale(wineQualityRed, center = TRUE, scale = TRUE)
+
+```
+
+Separarem el dataset en dos datasets, un per entrenar el nostre algoritme (train) i un per testajar com de vàlid és el nostre algoritme (test). 
+Agafarem 2/3 de les dades per crear el conjunt d'entrenament i 1/3 pel conjunt de test.
+
+També separarem la variable de sortida
+```{r }
+
+set.seed(200)
+y <- wine.Scal[,11] 
+X <- wine.Scal[,1:10] 
+
+set.seed(300)
+
+indexes = sample(1:nrow(wine.Scal),size=floor((2/3)*nrow(wine.Scal)))
+indexes
+
+trainMX <- X[indexes,]
+trainMy <- y[indexes]
+testMX  <- X[-indexes,]
+testMy  <- y[-indexes]
+
+```
+
+```{r }
+
+prop.table(table(trainMy))
+```
+
 # Regressió lineal
 # Arbre de decisió?? (discretitzar quality) o kmeans?
