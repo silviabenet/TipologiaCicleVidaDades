@@ -493,6 +493,7 @@ Escalarem les variables ja que es troben en escales diferents.
 wine.Scal <- scale(wineQualityRed, center = TRUE, scale = TRUE)
 ```
 
+
 ## Arbres de decisió.
 
 Un altre métode, fàcil per a predir una variable en concret.
