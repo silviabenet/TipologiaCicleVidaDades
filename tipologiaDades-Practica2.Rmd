@@ -3,16 +3,16 @@ title: "TipologiaDades-Practica2"
 author: "Silvia Benet, Marc Garrido"
 date: "15/5/2020"
 output:
-  pdf_document:
-    highlight: zenburn
-    toc: yes
-  word_document: default
   html_document:
     highlight: default
     number_sections: no
     theme: cosmo
     toc: yes
     toc_depth: 3
+  word_document: default
+  pdf_document:
+    highlight: zenburn
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -24,7 +24,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 1. Descripció del Dataset.
 
+Hem decidit utilitzar el dataset red-wine-quality:
+
 https://www.kaggle.com/uciml/red-wine-quality-cortez-et-al-2009
+
+"P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis.
+Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009."
+
+L'hem triat perquè considerem que ens permetrà provar diferents metodologies ja que té una quantitat prou important de variables d'entrada i a més conté una variable de sortida que ens permetrà entrenar i testejar els algoritmes.
+
+El que pretenem respondre és a la pregunta de quina variable té més pes en la qualitat del vi i segons uns valors donats de les variables d'entrada volem saber de quina qualitat serà el vi resultant. Per tant aplicarem diferents algoritmes que ens facin una predicció de la variable qualitat. 
+
 
 ```{r }
 
@@ -82,7 +92,7 @@ head(wineQualityRed)
 
 # 2. Integració i selecció de les dades.
 
-En aquest cas no veiem necessari eliminar ningun atribut, hi ha uns de més importants d'altres, però amb 11 atributs no voldriem eliminar-ne cap.
+En aquest cas no veiem necessari eliminar cap atribut, hi ha uns de més importants d'altres, però amb 11 atributs no voldriem eliminar-ne cap.
 
 ## Tipus de les variables.
 
@@ -98,15 +108,7 @@ Veiem que totes les variables són de tipus numeric, excepte l'última que és c
 Deixarem l'últim atribut com a enter, ja que aquest és un número del zero al deu i és la classe output, la que es vol predir.
 
 
-# 3. Neteja de les dades.
-=======
-wineQualityWhite <- read.csv('winequality-white.csv', stringsAsFactors = FALSE, header = TRUE, sep=";")
-
-
-```
-
-## Neteja de les dades
-
+# 3. Neteja de les dades
 
 Comprovem l'estructura del joc de dades
 
@@ -167,14 +169,14 @@ plot(wineQualityRed$citricacid)
 ```
 
 El valor que semblaria outiler és 1, el rang de la variable oscil.la entre 0 i 1, i hi ha valors de 0,8 així que no sembla pas un error. El deixarem tal com està.
-
-Comprovarem totalsulfurdioxide perquè també sembla qeu tingui alguns valors allunyats:
-
 ```{r }
 boxplot(wineQualityRed$totalsulfurdioxide, plot =FALSE)$out
 summary(wineQualityRed$totalsulfurdioxide)
 plot(wineQualityRed$totalsulfurdioxide)
 ```
+Comprovarem totalsulfurdioxide perquè també sembla que tingui alguns valors allunyats:
+
+
 
 Aquests dos valors si que es veuen ben diferenciats de la resta. Mirem quina informació dóna la seva fila per veure si discernim si són valors correctes o incorrectes.
 El valor màxim és 289:
@@ -212,6 +214,7 @@ table(wineQualityRed$quality)
 ```
 
 ```{r }
+
 hist(wineQualityRed$quality, 
      main="Histogram for quality", 
      xlab="quality", 
@@ -223,68 +226,54 @@ hist(wineQualityRed$quality,
 Ja que agafem totes les variables, estaria bé analitzar-les totes. 
 
 ```{r }
+par(mfrow = c(2,2))
+
 hist(wineQualityRed[[1]], 
      main=colnames(wineQualityRed)[1], 
      col="chocolate")
-```
 
-```{r }
 hist(wineQualityRed[[2]], 
      main=colnames(wineQualityRed)[2], 
      col="chocolate")
-```
 
-```{r }
+
 hist(wineQualityRed[[3]], 
      main=colnames(wineQualityRed)[3], 
      col="chocolate")
-```
 
-```{r }
 hist(wineQualityRed[[4]], 
      main=colnames(wineQualityRed)[4], 
      col="chocolate")
-```
 
-```{r }
+par(mfrow = c(2,2))
+
 hist(wineQualityRed[[5]], 
      main=colnames(wineQualityRed)[5], 
      col="chocolate")
-```
 
-```{r }
 hist(wineQualityRed[[6]], 
      main=colnames(wineQualityRed)[6], 
      col="chocolate")
-```
 
-```{r }
 hist(wineQualityRed[[7]], 
      main=colnames(wineQualityRed)[7], 
      col="chocolate")
-```
 
-```{r }
 hist(wineQualityRed[[8]], 
      main=colnames(wineQualityRed)[8], 
      col="chocolate")
-```
 
+par(mfrow = c(2,2))
 
-```{r }
 hist(wineQualityRed[[9]], 
      main=colnames(wineQualityRed)[9], 
      col="chocolate")
-```
 
-```{r }
 hist(wineQualityRed[[10]], 
      main=colnames(wineQualityRed)[10], 
      col="chocolate")
-```
 
 
-```{r }
 hist(wineQualityRed[[11]], 
      main=colnames(wineQualityRed)[11], 
      col="chocolate")
@@ -296,6 +285,7 @@ hist(wineQualityRed[[11]],
 
 ```{r }
 library(ggpubr)
+
 
 ggqqplot(wineQualityRed[[1]], title = colnames(wineQualityRed)[1])
 ggqqplot(wineQualityRed[[2]], title = colnames(wineQualityRed)[2])
@@ -332,6 +322,34 @@ shapiro.test(wineQualityRed[[12]])
 ```
 
 Cridant al shapiro test, també veiem que la p-value és més baixa del 5% de grau de confiança (0.05). Tornem a concluir que ninguna variable segueix una normalitat estricta.
+
+Per últim comprovarem la normalitat amb el test de Anderson-Darling per totes les variables:
+
+```{r }
+
+library(nortest)
+
+hist(wineQualityRed[,1])
+ad.test(wineQualityRed[,1])
+
+alpha <- 0.05
+col.names = colnames(wineQualityRed)
+
+for (i in 1:ncol(wineQualityRed)) {
+
+   if (is.integer(wineQualityRed[,i]) | is.numeric(wineQualityRed[,i])) {
+      p_val = ad.test(wineQualityRed[,i])$p.value
+      if (p_val < alpha) {
+       cat("No Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
+      }
+      else {
+         cat ("Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
+      }
+   }
+}
+
+```
+Segons el test d'Anderson-Darling no hi ha cap variable que segueixi una distribució normal.
 
 ## 4.3. Aplicació de proves estadístiques per comparar els grups de dades.
 
@@ -383,57 +401,8 @@ Veiem que tampoc existeix massa relació.
 
 ### Regressió logística?.
 
-# 5. Representació dels resultats a partir de taules i gràfiques.
 
 
-
-# MirAR normalitat i variança
-# BUsCAR CORRELACIONS
-=======
-# Comprovem la normalitat de les dades
-
-Amb l'histograma podem veure que sembla que segueix una distribució normal. Per assegurar realitzarem una gràfica qq cuantil - cuantil (qqplot)
-
-```{r }
-qqnorm(wineQualityRed$quality,main = paste("Normal Q-Q Plot for "))
-qqline(wineQualityRed$quality,col="red")
-
-```
-Per comprovar-ho realment utilitzarem el test de Anderson-Darling per totes les variables:
-
-```{r }
-
-library(nortest)
-
-hist(wineQualityRed[,1])
-ad.test(wineQualityRed[,1])
-
-alpha <- 0.05
-col.names = colnames(wineQualityRed)
-
-for (i in 1:ncol(wineQualityRed)) {
-
-   if (is.integer(wineQualityRed[,i]) | is.numeric(wineQualityRed[,i])) {
-      p_val = ad.test(wineQualityRed[,i])$p.value
-      if (p_val < alpha) {
-       cat("No Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
-      }
-      else {
-         cat ("Normal: ") + cat(col.names[i]) + cat("- p-value:") + cat(p_val) + cat("\n")
-      }
-   }
-}
-
-```
-Segons el test d'Anderson-Darling no hi ha cap variable que segueixi una distribució normal.
-
-?????? QUe FEM???
-
-
-# Comprovem la variança
-
-# Agafem els vins blancs i fem dos grups???????
-Comparem si la variança és homogènia comparant els vins blancs amb els vins negres
 
 # Busquem les correlacions que hi ha entre variables
 
@@ -460,18 +429,30 @@ I les variables que estàn més relacionades amb la qualitat són:
 
 
 
-
-
-# Knn
+## Knn
 
 Per intentar predir la qualitat del vi segons els variables que tenim d'entrada, aplicarem l'algoritme K-Nearest Neighbors (Knn)
 
-Primer escalarem les dades ja que estàn totes en escales diferents:
+Per tal de poder classificar més fàcilment el primer que farem és dicretitzar la variable qualitat. Tenint en compte que el que volem és saber si el vi tindrpa qualitat alta o baixa per discretitzarem utitilitzant intervals lògics.Tindrem els següents nivells:
 
-## Abans d'escalar s'ha de discretitzar la variable de sortida entre qualitat baixa, mitjana i alta i no escalar-la !
+Qualitat:
+< 5 -> Baixa
+5-> Mitja baixa
+6 -> Mitja alta
+">" 6 -> Alta
+
+Separem mitja baixa i mitja alta perquè la major part dels registres es troben en aquests dos valors.
 
 ```{r }
-wine.Scal <- scale(wineQualityRed, center = TRUE, scale = TRUE)
+
+breaks1 <- c(0,4,5,6,10)
+c <- cut(wineQualityRed$quality,breaks=breaks1, labels = c('Baixa','Mitja baixa','Mitja alta','Alta'))
+
+wineQualityRedD<- wineQualityRed
+wineQualityRedD$quality<- c
+
+plot(wineQualityRedD$quality, main = "Qualitat discretitzada")
+summary(wineQualityRedD$quality)
 
 ```
 
@@ -482,13 +463,12 @@ També separarem la variable de sortida
 ```{r }
 
 set.seed(200)
-y <- wine.Scal[,11] 
-X <- wine.Scal[,1:10] 
+y <- wineQualityRedD[,12] 
+X <- wineQualityRedD[,1:11] 
 
 set.seed(300)
 
-indexes = sample(1:nrow(wine.Scal),size=floor((2/3)*nrow(wine.Scal)))
-indexes
+indexes = sample(1:nrow(wineQualityRedD),size=floor((2/3)*nrow(wineQualityRedD)))
 
 trainMX <- X[indexes,]
 trainMy <- y[indexes]
@@ -496,11 +476,128 @@ testMX  <- X[-indexes,]
 testMy  <- y[-indexes]
 
 ```
+Comprovem si les dades entre el set de train i de test shan quedat ben repartides. 
 
 ```{r }
 
 prop.table(table(trainMy))
+prop.table(table(testMy))
+
 ```
 
-# Regressió lineal
-# Arbre de decisió?? (discretitzar quality) o kmeans?
+Veiem que sí que es troben ben proporcionats, els porcentatges de vins amb qualitat alta, mitja alta, mitja baixa i baixa són semblants en els dos sets de dades.
+
+Escalarem les variables ja que es troben en escales diferents.
+
+```{r }
+wine.Scal <- scale(wineQualityRed, center = TRUE, scale = TRUE)
+```
+
+## Arbres de decisió.
+
+Un altre métode, fàcil per a predir una variable en concret.
+
+Bàsicament crearà un arbre binari, respecte als atributs del dataset, plantejarà condicions i depenent si la resposta és veritat o mentida (boolean), seguirà un camí o un altre.
+
+Finalment, al arribar a la fulla, es podrà predir, en aquest cas, la puntuació d'un vi.
+
+```{r }
+install.packages(rpart)
+install.packages(rpart.plot)	
+library(rpart)
+library(rpart.plot)
+
+part <- rpart(quality ~. , data = wineQualityRed)
+part
+```
+
+Representació de l'arbre:
+
+```{r }
+rpart.plot(part)
+```
+
+Partirem el dataset en dues parts, una per entrenar l'algorisme, un altre de més petit per a comprovar si les prediccions són prou correctes.
+
+```{r }
+train <- wineQualityRed[1:3750, ]
+test <- wineQualityRed[3751:4898, ]
+```
+
+```{r }
+predicted <- predict(part, test)
+summary(predicted)
+```
+
+El resultat predit, de mitjana la seva mediana és una puntuació de 5.4, no varia gaire.
+
+```{r }
+summary(wineQualityRed$quality)
+```
+
+Si ho comparem amb els resultats reals, veiem que la mitjana s'acosta, però és molt més variable el real.
+
+Si agafem una mostra d'un vi inventada, 
+
+```{r }
+test <- data.frame(fixedacidity = 8, volatileacidity = 0.3, citricacid = 0.42, residualsugar = 10.5, chlorides = 0.1, freesulfurdioxide = 47, totalsulfurdioxide = 186, density = 0.9955, pH = 3.10, sulphates = 0.90, alcohol = 13)
+
+test
+```
+
+Volem predir la puntuació d'aquest vi inventat,
+
+```{r }
+test_pred <- predict(part, test)
+
+test_pred
+```
+
+Aquest vi, ens dona una puntuació de 6.65.
+
+
+## Random Forests.
+
+Una petita millora, s'aconsegueix amb l'algorisme de random forests. És un algorisme que bàsicament és acumular diferents random forests per aconseguir millor accuracy.
+
+Primerament, és recomenable crear un nou atribut on, depenent de la qualitat del vi, el calssifiquem com a bo, normal o dolent. Així ens serà molt més fàcil de predir la seva qualitat amb aquest algorisme.
+
+```{r }
+wineQualityRed$taste <- ifelse(wineQualityRed$quality < 5, "bad", "good")
+wineQualityRed$taste[wineQualityRed$quality == 5] <- "normal"
+wineQualityRed$taste[wineQualityRed$quality == 6] <- "normal"
+wineQualityRed$taste <- as.factor(wineQualityRed$taste)
+barplot(table(wineQualityRed$taste))
+```
+
+Montarem millor el nostre train i test (80% i 20% respectivament).
+Aplicarem l'algorisme i farem una primera predicció.
+
+```{r }
+ind <- sample(2, nrow(wineQualityRed), replace = TRUE, prob=c(0.8, 0.2))
+rf <- randomForest(taste ~ . - quality, data=wineQualityRed[ind == 1,])
+pred <- predict(rf, wineQualityRed[ind == 2,])
+
+rf
+```
+
+Aquí veiem, pel train, la matriu de confusió. Veiem que li és molt difícil calcular si un vi és dolent, tenim un error de la meitat quen un vi és bo, però quan un vi és normal, té un error del només 0.0265%.
+
+
+```{r }
+table(pred, data=wineQualityRed[ind == 2,]$taste)
+```
+
+Mirem la taula de predicció del test, semblant a la del train.
+
+Calculem l'accuracy:
+
+```{r }
+sum(pred==wineQualityRed[ind == 2,]$taste) / nrow(wineQualityRed[ind == 2,])
+```
+
+Obtenim una predicció amb un acert del 88%.
+
+
+
+# 5. Representació dels resultats a partir de taules i gràfiques.
