@@ -494,4 +494,111 @@ wine.Scal <- scale(wineQualityRed, center = TRUE, scale = TRUE)
 ```
 
 
+## Arbres de decisió.
+
+Un altre métode, fàcil per a predir una variable en concret.
+
+Bàsicament crearà un arbre binari, respecte als atributs del dataset, plantejarà condicions i depenent si la resposta és veritat o mentida (boolean), seguirà un camí o un altre.
+
+Finalment, al arribar a la fulla, es podrà predir, en aquest cas, la puntuació d'un vi.
+
+```{r }
+install.packages(rpart)
+install.packages(rpart.plot)	
+library(rpart)
+library(rpart.plot)
+
+part <- rpart(quality ~. , data = wineQualityRed)
+part
+```
+
+Representació de l'arbre:
+
+```{r }
+rpart.plot(part)
+```
+
+Partirem el dataset en dues parts, una per entrenar l'algorisme, un altre de més petit per a comprovar si les prediccions són prou correctes.
+
+```{r }
+train <- wineQualityRed[1:3750, ]
+test <- wineQualityRed[3751:4898, ]
+```
+
+```{r }
+predicted <- predict(part, test)
+summary(predicted)
+```
+
+El resultat predit, de mitjana la seva mediana és una puntuació de 5.4, no varia gaire.
+
+```{r }
+summary(wineQualityRed$quality)
+```
+
+Si ho comparem amb els resultats reals, veiem que la mitjana s'acosta, però és molt més variable el real.
+
+Si agafem una mostra d'un vi inventada, 
+
+```{r }
+test <- data.frame(fixedacidity = 8, volatileacidity = 0.3, citricacid = 0.42, residualsugar = 10.5, chlorides = 0.1, freesulfurdioxide = 47, totalsulfurdioxide = 186, density = 0.9955, pH = 3.10, sulphates = 0.90, alcohol = 13)
+
+test
+```
+
+Volem predir la puntuació d'aquest vi inventat,
+
+```{r }
+test_pred <- predict(part, test)
+
+test_pred
+```
+
+Aquest vi, ens dona una puntuació de 6.65.
+
+
+## Random Forests.
+
+Una petita millora, s'aconsegueix amb l'algorisme de random forests. És un algorisme que bàsicament és acumular diferents random forests per aconseguir millor accuracy.
+
+Primerament, és recomenable crear un nou atribut on, depenent de la qualitat del vi, el calssifiquem com a bo, normal o dolent. Així ens serà molt més fàcil de predir la seva qualitat amb aquest algorisme.
+
+```{r }
+wineQualityRed$taste <- ifelse(wineQualityRed$quality < 5, "bad", "good")
+wineQualityRed$taste[wineQualityRed$quality == 5] <- "normal"
+wineQualityRed$taste[wineQualityRed$quality == 6] <- "normal"
+wineQualityRed$taste <- as.factor(wineQualityRed$taste)
+barplot(table(wineQualityRed$taste))
+```
+
+Montarem millor el nostre train i test (80% i 20% respectivament).
+Aplicarem l'algorisme i farem una primera predicció.
+
+```{r }
+ind <- sample(2, nrow(wineQualityRed), replace = TRUE, prob=c(0.8, 0.2))
+rf <- randomForest(taste ~ . - quality, data=wineQualityRed[ind == 1,])
+pred <- predict(rf, wineQualityRed[ind == 2,])
+
+rf
+```
+
+Aquí veiem, pel train, la matriu de confusió. Veiem que li és molt difícil calcular si un vi és dolent, tenim un error de la meitat quen un vi és bo, però quan un vi és normal, té un error del només 0.0265%.
+
+
+```{r }
+table(pred, data=wineQualityRed[ind == 2,]$taste)
+```
+
+Mirem la taula de predicció del test, semblant a la del train.
+
+Calculem l'accuracy:
+
+```{r }
+sum(pred==wineQualityRed[ind == 2,]$taste) / nrow(wineQualityRed[ind == 2,])
+```
+
+Obtenim una predicció amb un acert del 88%.
+
+
+
 # 5. Representació dels resultats a partir de taules i gràfiques.
