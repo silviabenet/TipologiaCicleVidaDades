@@ -488,12 +488,72 @@ prop.table(table(testMy))
 Veiem que sí que es troben ben proporcionats, els porcentatges de vins amb qualitat alta, mitja alta, mitja baixa i baixa són semblants en els dos sets de dades.
 
 Escalarem les variables ja que es troben en escales diferents.
+Calculem K com l'arrel quadrada del número d'observacions (1599). 
 
 ```{r }
-wine.Scal <- scale(wineQualityRed, center = TRUE, scale = TRUE)
+library (class)
+library (caret)
+
+wineTrain.Scal <- scale(trainMX, center = TRUE, scale = TRUE)
+wineTest.Scal <- scale(testMX, center = TRUE, scale = TRUE)
+
+
+
+set.seed(678)
+
+wine.knn<- knn(train = wineTrain.Scal, test=wineTest.Scal, cl=trainMy, k=40)
+
+```
+Evaluarem el rendiment del model
+
+```{r }
+confusionMatrix(testMy, wine.knn)
+
 ```
 
+ La predicció del model és del 59%, que és un valor molt baix. Si mirem el valor de kappa és del 33%. Si ens hi fixem l'algoritme és incapaç de predir els vins amb qualitat 3, 4 i 8. D'aquests l'encert és 0. Només és capaç de prediure les qualitats 5, 6 i 7 amb un encert de 30 % aprox (30%,25%,36% ). Per tant el model no ens és massa útil.
 
+ Provem sense factoritzar la variable de sortida a veure si tenim una predicció millor
+```{r }
+
+set.seed(300)
+
+y2 <- wineQualityRed[,12] 
+X2 <- wineQualityRed[,1:11] 
+
+set.seed(456)
+
+indexes2 = sample(1:nrow(wineQualityRed),size=floor((2/3)*nrow(wineQualityRed)))
+
+trainMX2 <- X2[indexes2,]
+trainMy2 <- y2[indexes2]
+testMX2  <- X2[-indexes2,]
+testMy2  <- y2[-indexes2]
+
+prop.table(table(trainMy2))
+prop.table(table(testMy2))
+
+wineTrain.Scal2 <- scale(trainMX2, center = TRUE, scale = TRUE)
+wineTest.Scal2 <- scale(testMX2, center = TRUE, scale = TRUE)
+
+set.seed(555)
+
+wine.knn2<- knn(train = wineTrain.Scal2, test=wineTest.Scal2, cl=trainMy2, k=40)
+
+```
+Evaluarem el rendiment del model
+
+```{r }
+
+confusionMatrix(factor(testMy2), wine.knn2)
+
+```
+
+ El resultat ha estat quasi el mateix. La predicció és del 59 % que és molt baix. Així que no és un model molt bo per esbrinar la qualitat del vi segons les variables d'entrada.
+ 
+ El valor de Kappa és també molt baix, 33 % i ens reforça encara més la idea que aquest model no ens és massa útil.
+ 
+ 
 ## Arbres de decisió.
 
 Un altre métode, fàcil per a predir una variable en concret.
@@ -503,8 +563,8 @@ Bàsicament crearà un arbre binari, respecte als atributs del dataset, planteja
 Finalment, al arribar a la fulla, es podrà predir, en aquest cas, la puntuació d'un vi.
 
 ```{r }
-install.packages(rpart)
-install.packages(rpart.plot)	
+#install.packages(rpart)
+#install.packages(rpart.plot)	
 library(rpart)
 library(rpart.plot)
 
@@ -575,6 +635,8 @@ Montarem millor el nostre train i test (80% i 20% respectivament).
 Aplicarem l'algorisme i farem una primera predicció.
 
 ```{r }
+library(randomForest)
+
 ind <- sample(2, nrow(wineQualityRed), replace = TRUE, prob=c(0.8, 0.2))
 rf <- randomForest(taste ~ . - quality, data=wineQualityRed[ind == 1,])
 pred <- predict(rf, wineQualityRed[ind == 2,])
