@@ -123,15 +123,15 @@ summary(wineQualityRed)
 Amb un summary podem veure més o menys com són les dades per fer-nos una primera idea.
 
 
-## 3.1 Identificació de valors nul·ls.
+## 3.1 Identificació de valors nuls.
 
-Mirarem si hi ha zeros i nul·ls
+Mirarem si hi ha zeros i nuls
 ```{r }
 colSums(is.na(wineQualityRed))
 colSums(wineQualityRed=="")
 
 ```
-No hi ha valors a 0 ni nulls. No semba que hi hagi valors perduts (ni N/A ni altres valors). 
+No hi ha valors a 0 ni nuls. No semba que hi hagi valors perduts (ni N/A ni altres valors). 
 
 
 ## 3.2 Identificació de valors extrems (outliers).
@@ -169,14 +169,14 @@ plot(wineQualityRed$citricacid)
 ```
 
 El valor que semblaria outiler és 1, el rang de la variable oscil.la entre 0 i 1, i hi ha valors de 0,8 així que no sembla pas un error. El deixarem tal com està.
+
+Comprovarem totalsulfurdioxide perquè també sembla que tingui alguns valors allunyats:
+
 ```{r }
 boxplot(wineQualityRed$totalsulfurdioxide, plot =FALSE)$out
 summary(wineQualityRed$totalsulfurdioxide)
 plot(wineQualityRed$totalsulfurdioxide)
 ```
-Comprovarem totalsulfurdioxide perquè també sembla que tingui alguns valors allunyats:
-
-
 
 Aquests dos valors si que es veuen ben diferenciats de la resta. Mirem quina informació dóna la seva fila per veure si discernim si són valors correctes o incorrectes.
 El valor màxim és 289:
@@ -399,12 +399,7 @@ summary(mod)
 
 Veiem que tampoc existeix massa relació.
 
-### Regressió logística?.
-
-
-
-
-# Busquem les correlacions que hi ha entre variables
+### Busquem les correlacions que hi ha entre variables
 
 ```{r }
 
@@ -429,17 +424,18 @@ I les variables que estàn més relacionades amb la qualitat són:
 
 
 
-## Knn
+### Knn
 
 Per intentar predir la qualitat del vi segons els variables que tenim d'entrada, aplicarem l'algoritme K-Nearest Neighbors (Knn)
 
 Per tal de poder classificar més fàcilment el primer que farem és dicretitzar la variable qualitat. Tenint en compte que el que volem és saber si el vi tindrpa qualitat alta o baixa per discretitzarem utitilitzant intervals lògics.Tindrem els següents nivells:
 
 Qualitat:
-< 5 -> Baixa
-5-> Mitja baixa
-6 -> Mitja alta
-">" 6 -> Alta
+
+ * < 5 -> Baixa
+ * 5-> Mitja baixa
+ * 6 -> Mitja alta
+ * ">" 6 -> Alta
 
 Separem mitja baixa i mitja alta perquè la major part dels registres es troben en aquests dos valors.
 
@@ -511,7 +507,7 @@ confusionMatrix(testMy, wine.knn)
 
 ```
 
- La predicció del model és del 59%, que és un valor molt baix. Si mirem el valor de kappa és del 33%. Si ens hi fixem l'algoritme és incapaç de predir els vins amb qualitat 3, 4 i 8. D'aquests l'encert és 0. Només és capaç de prediure les qualitats 5, 6 i 7 amb un encert de 30 % aprox (30%,25%,36% ). Per tant el model no ens és massa útil.
+ La predicció del model és del 59%, que és un valor molt baix. Si mirem el valor de kappa és del 33%. Si ens hi fixem l'algoritme és incapaç de predir els vins amb qualitat 3, 4 i 8. D'aquests l'encert és 0. Només és capaç de prediure les qualitats mitja baixa, mitja alta i alta amb un encert de 60 % aprox . Per tant el model no ens és massa útil.
 
  Provem sense factoritzar la variable de sortida a veure si tenim una predicció millor
 ```{r }
@@ -661,6 +657,50 @@ sum(pred==wineQualityRed[ind == 2,]$taste) / nrow(wineQualityRed[ind == 2,])
 
 Obtenim una predicció amb un acert del 88%.
 
-
-
 # 5. Representació dels resultats a partir de taules i gràfiques.
+
+   Després de comprovar que les dades no contenien valors nuls hem comprovat els outliers. Pel que hem vist, hem trobat alguns valors outliers, pero semblaven valors dins d'un rang correcte, per tant no hem fet res amb ells. Un exemple és totalSulfureDioxide. Hem trobat dos valors outliers de la variable totalSulfureDioxide i hem vist que els dos registres tenien qualitat = 7. Mirem en una gràfica la relació entre totalSulfureDioxide i qualitat: 
+
+```{r }
+filas=dim(wineQualityRed)[1]
+
+wineQualityRed.f<- wineQualityRed
+wineQualityRed.f$quality<- factor(wineQualityRed$quality)
+
+ggplot(data=wineQualityRed.f[1:filas,],aes(x=totalsulfurdioxide,fill=quality))+geom_bar()
+
+```
+
+Veient el gràfic està clar que no hi ha una relació directa entre qualitat i totalSulfuerDioxide. A valor més alts de totalSulfureDioxide no impliquen pas major qualitat en general.  Només es dóna el cas en dos outliers però sembla una situació excepcional. També veurem més endavant en la matriu de correlació que les dues variables estàn poc relacionades.
+
+ Hem comprovat la correlació de variables, per intentar descobrir quina està més relacionada amb qualitat o quines estàn més correlacionades entre elles. Aquest és el resultat:
+
+```{r }
+ corrplot(correlacio.wineQualityRed, method = 'number')
+```
+
+ La variable que està més correlacionada amb qualitat és alcohol, però amb un valor de 0,48 que és un valor molt baix. Per tant no es pot establir una relació molt forta entre cap variable i la qualitat. Entre variables la màxima correlació és entre pH i fixedAcidity amb 0.68 que tampoc és un valor molt alt. Per tant la conclusió és que les correlacions no ens dónen informació transcendent.
+ 
+ Hem aplicat una sèrie de models per intentar predir la variable qualitat a partir dels valors de les nostres variables d'entrada. Els models aplicats i els resultats són els següents:
+ 
+ **knn (K nearest neighbours) **
+ 
+  Hem aplicat el model knn i l'hem entrenat amb un conjunt d'entrenament del 70 % dels registres i un de test del 30 %. El resultat que hem obtigut de predicicó amb el nostre conjunt de test és el següent:
+  
+```{r }
+
+confusionMatrix(factor(testMy2), wine.knn2)
+
+```
+ 
+ El model ens prediu amb una precisió del 59% en general, però realment si mirem cada valor de qualitat el model és incapaç de pedir cap qualitat de valor 3, 4 ni 8. ELs valors de predicció individualment són doncs:
+ 
+ * Qualitat 3-> 0
+ * Qualitat 4-> 0
+ * Qualitat 5 -> 68%
+ * Qualitat 6 -> 54%
+ * Qualitat 7 -> 39%
+ * Qualitat 8 -> 0
+ 
+ Per tant el model només ens prediu les qualitats intermèdies del vi, de 5 o 6 amb un 60 % de probabilitat d'encert. No crec que el model ens sigui molt útil ja que el que més ens interessaria també seria poder predir les qualitats bones  o molt dolentes. 
+ Hem provat també d'escalar la variable qualitat repartint les dades entre: Qualitat baixa, mitja baixa, mitja alta i alta, però el resultat ha estat molt semblant a l'enterior. El model ens pediu les qualitats mitjes amb una precisió d'un 60 %.
