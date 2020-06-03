@@ -606,7 +606,6 @@ Volem predir la puntuació d'aquest vi inventat,
 
 ```{r }
 test_pred <- predict(decisionTreesPart, test)
-
 test_pred
 ```
 
@@ -655,6 +654,7 @@ Calculem l'accuracy:
 sum(pred==wineQualityRed[ind == 2,]$taste) / nrow(wineQualityRed[ind == 2,])
 ```
 
+
 Obtenim una predicció amb un acert del 85%.
 
 # 5. Representació dels resultats a partir de taules i gràfiques.
@@ -676,7 +676,6 @@ barplot(table(wineQualityRed$taste), col="blue")
 És curiós com la gran majoria de puntuació de qualitat estan compresses entre el 5 i el 6.
 
 De fet hem creat una nova visualització, ja mostrada en apartats anteriors, per a veure-ho més clar i qeu sigui més fàcil de predir. Aquesta nova visualització agrupa les puntuacions de 5 i 6 com a vins de gust "normal", mentres qeu si supera la puntuació de 6, es considera un vi bo. Si és menor de 4, es considera un vi dolent.
-
 
 
    Després de comprovar que les dades no contenien valors nuls hem comprovat els outliers. Pel que hem vist, hem trobat alguns valors outliers, pero semblaven valors dins d'un rang correcte, per tant no hem fet res amb ells. Un exemple és totalSulfureDioxide. Hem trobat dos valors outliers de la variable totalSulfureDioxide i hem vist que els dos registres tenien qualitat = 7. Mirem en una gràfica la relació entre totalSulfureDioxide i qualitat: 
@@ -703,12 +702,14 @@ Veient el gràfic està clar que no hi ha una relació directa entre qualitat i 
  
  Hem aplicat una sèrie de models per intentar predir la variable qualitat a partir dels valors de les nostres variables d'entrada. Els models aplicats i els resultats són els següents:
  
+
  **Regressió lineal **
  
  No podem extreure'n bones conclusions a partir de la regressió lineal, l'atribut de qualitat respecte la de l'alcohol, al ser no continua aquesta, ens és impossible trobar cap tipus de correlació entre aquestes dues variables mitjançant la regressió lineal.
  
  No veiem composició de variables on tinguin una forta correlació entre elles, almenys utilitzant la regressió lienal.
  
+
  **knn (K nearest neighbours) **
  
   Hem aplicat el model knn i l'hem entrenat amb un conjunt d'entrenament del 70 % dels registres i un de test del 30 %. El resultat que hem obtigut de predicicó amb el nostre conjunt de test és el següent:
@@ -729,7 +730,8 @@ confusionMatrix(factor(testMy2), wine.knn2)
  * Qualitat 8 -> 0
  
  Per tant el model només ens prediu les qualitats intermèdies del vi, de 5 o 6 amb un 60 % de probabilitat d'encert. No crec que el model ens sigui molt útil ja que el que més ens interessaria també seria poder predir les qualitats bones  o molt dolentes. 
- Hem provat també d'escalar la variable qualitat repartint les dades entre: Qualitat baixa, mitja baixa, mitja alta i alta, però el resultat ha estat molt semblant a l'enterior. El model ens pediu les qualitats mitjes amb una precisió d'un 60 %.
+
+ Hem provat també d'escalar la variable qualitat repartint les dades entre: Qualitat baixa, mitja baixa, mitja alta i alta, però el resultat ha estat molt semblant a l'anterior. El model ens prediu les qualitats mitjes amb una precisió d'un 60 %.
  
  **Decision trees **
  
