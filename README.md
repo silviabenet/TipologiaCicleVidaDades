@@ -24,3 +24,7 @@ Modeling wine preferences by data mining from physicochemical properties. In Dec
  * Knn
  * Arbres de decisió
  * Random Forest
+
+## Fitxers que conté el projecte
+
+* 
