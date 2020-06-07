@@ -30,5 +30,5 @@ Modeling wine preferences by data mining from physicochemical properties. In Dec
 * **EntregaFinalPDF.pdf** : Document resum de l'entrega del projecte. Conté l'objectiu del projecte, els participants i conclusions.
 * **tipologiaDades-Practica2.Rmd**: Implementació en R dels diferents models estadístics.
 * **tipologiaDades-Practica2.html**: Presentació html del codi.
-* **wineQualityRed_output.csv**: Fitxer de sortida.
+* **wineQualityRed_output.csv**: Dataset de sortida.
 * **winequality-red.csv**: Dataset d'entrada.
