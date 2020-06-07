@@ -1,7 +1,7 @@
 ---
 title: "TipologiaDades-Practica2"
 author: "Silvia Benet, Marc Garrido"
-date: "15/5/2020"
+date: "07/06/2020"
 output:
   html_document:
     highlight: default
@@ -751,13 +751,11 @@ confusionMatrix(factor(testMy2), wine.knn2)
   
 # 6. Resolució del problema
  
- La principal conclusió que se n'extrau és que la mitjana de puntuació d'un vi és del 5 i 6, la majoria de vins es mouen entre aquests dos valors.
+ La principal conclusió que se n'extreu és que en aquest dataset la majoria de vins es troben en la qualitat 5 i 6, per tant és molt difícil poder predir qualitats més altes o més baixes. Per això els algoritmes ens prediuen amb més encert les qualitats 5 i 6.
  
- Hi ha molts atributs que no tenen res a veure amb la qualitat d'un vi.
+ No hi ha cap atribut per sí sol que tingui una relació molt forta i directe amb la qualitat del vi.
  
- La qualitat d'un vi, és un valor molt subjectiu, imposat per humans. No és com per exemple la qualtitat d'alcohol on la podem mesurar exactament.
- 
- Sens entrar massa a fons en temes de prediccions, obtenim la qualitat d'un vi amb més d'un 85% d'acert. Explorant altres treballs d'aquest mateix dataset en webs de data-sciene, no es veu que pasin del 90% d'acert. Així que crec que podem dir que les nostres prediccions són prou acertades.
+ En un dels nostres models obtenim la qualitat d'un vi amb més d'un 85% d'encert. Explorant altres treballs d'aquest mateix dataset en webs de data-sciene, no es veu que pasin del 90% d'encert. Així que crec que podem dir que les nostres prediccions són prou vàlides. 
  
 # 7. Exportació del codi
 
