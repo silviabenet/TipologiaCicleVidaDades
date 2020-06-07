@@ -27,4 +27,4 @@ Modeling wine preferences by data mining from physicochemical properties. In Dec
 
 ## Fitxers que conté el projecte
 
-* 
+* EntregaFinalPDF.pdf : Document resum de l'entrega del projecte. Conté l'objectiu del projecte, els participants i conclusions.
